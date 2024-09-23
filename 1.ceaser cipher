@@ -1,33 +1,23 @@
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
-void caesarEncrypt(char text[], int shift) {
-    int i = 0;
-    char ch;
-    while (text[i] != '\0') {
-        ch = text[i];
-
-        if (isupper(ch)) {
-            ch = (ch - 'A' + shift) % 26 + 'A'; 
-        }
-    
-        else if (islower(ch)) {
-            ch = (ch - 'a' + shift) % 26 + 'a'; 
-        }
-        text[i] = ch;
-        i++;
-    }
+#include<stdio.h>
+void caesarcipher(char *text,int key){
+	for(int i=0;text[i]!='\0';i++){
+		if(text[i]>='a' && text[i]<='z'){
+			text[i]=((text[i]-'a'+key)%26)+'a';
+		}
+		else if(text[i]>='A' && text[i]<='Z'){
+			text[i]=((text[i]-'A'+key)%26)+'A';
+		}
+	}
 }
-int main() {
-    char text[100];
-    int shift;
-    printf("Enter a message: ");
-    fgets(text, sizeof(text), stdin);
-    printf("Enter shift value (1-25): ");
-    scanf("%d", &shift);
-    caesarEncrypt(text, shift);
-    printf("Encrypted message: %s", text);
 
-
-    return 0;
+int main(){
+	char text[100];
+	int key;
+	printf("enter text:");
+	fgets(text,sizeof(text),stdin);
+	printf("enter shift:");
+	scanf("%d",&key);
+	caesarcipher(text,key);
+	printf("encrypted text:%s",text);
 }
+ pseudocode
