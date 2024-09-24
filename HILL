@@ -1,0 +1,21 @@
+#include <stdio.h>
+void hillCipher(int key[2][2], char plaintext[100]) {
+    int ciphertext[100];
+    int i, j;
+
+    for (i = 0; plaintext[i]; i += 2) {
+        ciphertext[i] = (key[0][0] * (plaintext[i] - 'a') + key[0][1] * (plaintext[i + 1] - 'a')) % 26;
+        ciphertext[i + 1] = (key[1][0] * (plaintext[i] - 'a') + key[1][1] * (plaintext[i + 1] - 'a')) % 26;
+    }
+    for (i = 0; ciphertext[i]; i++) {
+        printf("%c", ciphertext[i] + 'a');
+    }
+}
+int main() {
+    int key[2][2] = {{3, 3}, {2, 5}};
+    char plaintext[100] = "attackatdawn";
+
+    hillCipher(key, plaintext);
+
+    return 0;
+}
