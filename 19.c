@@ -1,90 +1,61 @@
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdint.h>
-
-#define DES_BLOCK_SIZE 8
-#define DES_KEY_SIZE 8
-
-// Dummy DES encryption function (replace with real DES implementation)
-void des_encrypt(const uint8_t *key, uint8_t *block) {
-    for (int i = 0; i < DES_BLOCK_SIZE; ++i) {
-        block[i] ^= key[i];  // Simple XOR for demonstration
-    }
+uint8_t key[8] = {0x13, 0x34, 0x57, 0x79, 0x9B, 0xBC, 0xDF, 0xF1};
+void initialPermutation(uint8_t *block);
+void finalPermutation(uint8_t *block);
+void expansion(uint8_t *block, uint8_t *expanded_block);
+void substitution(uint8_t *expanded_block, uint8_t *substituted_block);
+void permutation(uint8_t *substituted_block, uint8_t *permuted_block);
+void xorBlocks(uint8_t *block1, uint8_t *block2, int size);
+void generateSubkeys(uint8_t *key, uint8_t *subkeys[]);
+void desEncrypt(uint8_t *block, uint8_t *subkeys[]);
+void initialPermutation(uint8_t *block) {
 }
-
-// Function for 3DES encryption in CBC mode
-void des3_encrypt_cbc(const uint8_t *key1, const uint8_t *key2, const uint8_t *key3, 
-                      const uint8_t *iv, const uint8_t *input, uint8_t *output, size_t length) {
-    uint8_t block[DES_BLOCK_SIZE];
-  //saveetha college
-
-    uint8_t prev_block[DES_BLOCK_SIZE];
-    size_t i;
-
-    // Initialize the first block with IV
-    memcpy(prev_block, iv, DES_BLOCK_SIZE);
-
-    for (i = 0; i < length; i += DES_BLOCK_SIZE) {
-        // Copy the next block of plaintext
-        memcpy(block, input + i, DES_BLOCK_SIZE);
-
-        // XOR with the previous ciphertext block (or IV for the first block)
-        for (int j = 0; j < DES_BLOCK_SIZE; ++j) {
-            block[j] ^= prev_block[j];
-        }
-
-        // Encrypt with the first key
-        des_encrypt(key1, block);
-
-        // Encrypt with the second key
-        des_encrypt(key2, block);
-
-        // Encrypt with the third key
-        des_encrypt(key3, block);
-
-        // Save the current ciphertext block for the next round
-        memcpy(output + i, block, DES_BLOCK_SIZE);
-        memcpy(prev_block, output + i, DES_BLOCK_SIZE);
-    }
+void finalPermutation(uint8_t *block) { 
 }
+void expansion(uint8_t *block, uint8_t *expanded_block) {   
+}
+void substitution(uint8_t *expanded_block, uint8_t *substituted_block) {   
+}
+void permutation(uint8_t *substituted_block, uint8_t *permuted_block) {    
+}
+void xorBlocks(uint8_t *block1, uint8_t *block2, int size) {   
+}
+void generateSubkeys(uint8_t *key, uint8_t *subkeys[]) {   
+}
+void desEncrypt(uint8_t *block, uint8_t *subkeys[]) {
+}
+void cbcEncrypt(uint8_t *plaintext, int plaintext_length, uint8_t *key, uint8_t *iv, uint8_t *ciphertext) {
+    uint8_t *subkeys[16];
+    uint8_t block[8];    
+    uint8_t temp[8];     
+    generateSubkeys(key, subkeys);
+    memcpy(block, iv, 8);
+    int i;
+    for (i = 0; i < plaintext_length; i += 8) {
+        xorBlocks(block, plaintext + i, 8);
 
-void print_hex(const uint8_t *data, size_t length) {
-    for (size_t i = 0; i < length; ++i) {
-        printf("%02X", data[i]);
+        desEncrypt(block, subkeys);
+
+    
+        memcpy(ciphertext + i, block, 8);
     }
-    printf("\n");
 }
 
 int main() {
-    uint8_t key1[DES_KEY_SIZE] = {0x13, 0x34, 0x57, 0x79, 0x9B, 0xBC, 0xDF, 0xF1};  // Hardcoded key 1
-    uint8_t key2[DES_KEY_SIZE] = {0x1A, 0x56, 0xF9, 0xCD, 0xE3, 0x7B, 0xA5, 0x99};  // Hardcoded key 2
-    uint8_t key3[DES_KEY_SIZE] = {0x02, 0x46, 0x8F, 0x7D, 0xD6, 0x9A, 0xEA, 0xB0};  // Hardcoded key 3
-    uint8_t iv[DES_BLOCK_SIZE] = {0x12, 0x34, 0x56, 0x78, 0x90, 0xAB, 0xCD, 0xEF};  // Hardcoded IV
-    uint8_t plaintext[1024], ciphertext[1024];
-    size_t length;
+    uint8_t plaintext[256] = "This is a secret message."; 
+    int plaintext_length = strlen((char *)plaintext);      
+    uint8_t iv[8] = {0xAB, 0xCD, 0xEF, 0x12, 0x34, 0x56, 0x78, 0x90};
+    uint8_t ciphertext[256];
 
-    // User input for plaintext
-    printf("Enter plaintext (max 1024 chars): ");
-    fgets((char *)plaintext, sizeof(plaintext), stdin);
-    length = strlen((char *)plaintext);
+    cbcEncrypt(plaintext, plaintext_length, key, iv, ciphertext);
 
-    // Remove newline character from plaintext
-    if (length > 0 && plaintext[length - 1] == '\n') {
-        plaintext[length - 1] = '\0';
-        length--;
+    printf("Ciphertext:\n");
+    int i;
+    for ( i = 0; i < plaintext_length; ++i) {
+        printf("%02X ", ciphertext[i]);
     }
-
-    // Ensure length is a multiple of DES_BLOCK_SIZE
-    size_t padded_length = ((length + DES_BLOCK_SIZE - 1) / DES_BLOCK_SIZE) * DES_BLOCK_SIZE;
-    memset(plaintext + length, 0, padded_length - length);
-
-    // Encrypt the plaintext
-    des3_encrypt_cbc(key1, key2, key3, iv, plaintext, ciphertext, padded_length);
-
-    // Print the ciphertext in hexadecimal format
-    printf("Ciphertext: ");
-    print_hex(ciphertext, padded_length);
-
-    return 0;
+    printf("\n");
 }
